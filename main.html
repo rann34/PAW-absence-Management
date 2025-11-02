@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Attendance Table - Tutorial 2</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f7f7f7; }
+    table { border-collapse: collapse; width: 100%; background: #fff; }
+    th, td { border: 1px solid #ccc; padding: 6px; text-align: center; font-size: 14px; }
+    th { background: #eee; }
+    .row-good { background-color: #dff0d8; }   /* green */
+    .row-warning { background-color: #fcf8e3; }/* yellow */
+    .row-bad { background-color: #f2dede; }    /* red */
+    .name-col { text-align: left; padding-left: 10px; }
+    .msg { text-align: left; padding-left: 8px; width: 220px; }
+    .small { font-size: 12px; color: #333; }
+    caption { font-weight: bold; margin-bottom: 8px; text-align: left; }
+    @media (max-width: 900px) {
+      table, thead, tbody, th, td, tr { display: block; }
+      thead { display: none; }
+      tr { margin-bottom: 12px; border: 1px solid #ddd; }
+      td { border: none; padding: 8px; display: flex; justify-content: space-between; }
+      td::before { font-weight: bold; color: #444; }
+    }
+  </style>
+</head>
+<body>
+  <h2>Attendance Table (S1 - S6 and P1 - P6)</h2>
+  <p class="small">Change presence/participation checkboxes to update results automatically.</p>
+
+  <table id="attendanceTable" aria-label="Student attendance table">
+    <caption>Attendance & Participation - 6 sessions</caption>
+    <thead>
+      <tr>
+        <th rowspan="2">Last Name</th>
+        <th rowspan="2">First Name</th>
+        <th colspan="6">Sessions (Present)</th>
+        <th colspan="6">Participation (P)</th>
+        <th rowspan="2">Absences</th>
+        <th rowspan="2">Participations</th>
+        <th rowspan="2">Message</th>
+      </tr>
+      <tr>
+        <th>S1</th><th>S2</th><th>S3</th><th>S4</th><th>S5</th><th>S6</th>
+        <th>P1</th><th>P2</th><th>P3</th><th>P4</th><th>P5</th><th>P6</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Example student 1 -->
+      <tr>
+        <td class="name-col">Ahmed</td>
+        <td class="name-col">Sara</td>
+        <!-- Presence checkboxes -->
+        <td><input type="checkbox" class="present"></td>
+        <td><input type="checkbox" class="present" checked></td>
+        <td><input type="checkbox" class="present"></td>
+        <td><input type="checkbox" class="present" checked></td>
+        <td><input type="checkbox" class="present"></td>
+        <td><input type="checkbox" class="present"></td>
+        <!-- Participation checkboxes -->
+        <td><input type="checkbox" class="participated"></td>
+        <td><input type="checkbox" class="participated"></td>
+        <td><input type="checkbox" class="participated"></td>
+        <td><input type="checkbox" class="participated" checked></td>
+        <td><input type="checkbox" class="participated"></td>
+        <td><input type="checkbox" class="participated"></td>
+        <td class="absences">0</td>
+        <td class="parts">0</td>
+        <td class="msg">-</td>
+      </tr>
+
+      <!-- Example student 2 -->
+      <tr>
+        <td class="name-col">Yacine</td>
+        <td class="name-col">Ali</td>
+        <td><input type="checkbox" class="present" checked></td>
+        <td><input type="checkbox" class="present"></td>
+        <td><input type="checkbox" class="present" checked></td>
+        <td><input type="checkbox" class="present" checked></td>
+        <td><input type="checkbox" class="present" checked></td>
+        <td><input type="checkbox" class="present" checked></td>
+
+        <td><input type="checkbox" class="participated" checked></td>
+        <td><input type="checkbox" class="participated"></td>
+        <td><input type="checkbox" class="participated" checked></td>
+        <td><input type="checkbox" class="participated" checked></td>
+        <td><input type="checkbox" class="participated" checked></td>
+        <td><input type="checkbox" class="participated" checked></td>
+
+        <td class="absences">0</td>
+        <td class="parts">0</td>
+        <td class="msg">-</td>
+      </tr>
+
+      <!-- Example student 3 -->
+      <tr>
+        <td class="name-col">Houcine</td>
+        <td class="name-col">Rania</td>
+        <td><input type="checkbox" class="present" checked></td>
+        <td><input type="checkbox" class="present" checked></td>
+        <td><input type="checkbox" class="present"></td>
+        <td><input type="checkbox" class="present" checked></td>
+        <td><input type="checkbox" class="present" checked></td>
+        <td><input type="checkbox" class="present"></td>
+
+        <td><input type="checkbox" class="participated" checked></td>
+        <td><input type="checkbox" class="participated"></td>
+        <td><input type="checkbox" class="participated"></td>
+        <td><input type="checkbox" class="participated" checked></td>
+        <td><input type="checkbox" class="participated"></td>
+        <td><input type="checkbox" class="participated"></td>
+
+        <td class="absences">0</td>
+        <td class="parts">0</td>
+        <td class="msg">-</td>
+      </tr>
+
+    </tbody>
+  </table>
+
+  <script>
+    // constants
+    const SESSIONS = 6;
+
+    // Helper: compute and update one row
+    function updateRow(row) {
+      // collect present & participated checkboxes within this row
+      const presentBoxes = row.querySelectorAll('input.present');
+      const partBoxes = row.querySelectorAll('input.participated');
+
+      // count present (checked) and participations
+      let presentCount = 0;
+      for (let i = 0; i < presentBoxes.length; i++) {
+        if (presentBoxes[i].checked) presentCount++;
+      }
+      let partCount = 0;
+      for (let i = 0; i < partBoxes.length; i++) {
+        if (partBoxes[i].checked) partCount++;
+      }
+
+      // absences = sessions - presentCount
+      const absences = SESSIONS - presentCount;
+
+      // update numeric cells
+      const absCell = row.querySelector('.absences');
+      const partsCell = row.querySelector('.parts');
+      const msgCell = row.querySelector('.msg');
+      if (absCell) absCell.textContent = absences;
+      if (partsCell) partsCell.textContent = partCount;
+
+      // row coloring by absences:
+      row.classList.remove('row-good','row-warning','row-bad');
+      if (absences < 3) {
+        row.classList.add('row-good'); // green
+      } else if (absences >= 3 && absences <= 4) {
+        row.classList.add('row-warning'); // yellow
+      } else { // 5 or 6
+        row.classList.add('row-bad'); // red
+      }
+
+      // message logic
+      let attendanceMsg;
+      if (absences < 3) attendanceMsg = "Good attendance";
+      else if (absences >= 3 && absences <= 4) attendanceMsg = "Warning - attendance low";
+      else attendanceMsg = "Excluded - too many absences";
+
+      let participationMsg;
+      // choose threshold for "excellent" participation: 4 or more participations
+      if (partCount >= 4) participationMsg = "Excellent participation";
+      else participationMsg = "You need to participate more";
+
+      // Combine for final message
+      let finalMsg;
+      if (attendanceMsg.startsWith("Good")) {
+        if (partCount >= 4) finalMsg = "Good attendance - Excellent participation";
+        else finalMsg = "Good attendance - You need to participate more";
+      } else if (attendanceMsg.startsWith("Warning")) {
+        finalMsg = "Warning - attendance low - " + participationMsg;
+      } else { // Excluded
+        finalMsg = "Excluded - too many absences - " + participationMsg;
+      }
+
+      if (msgCell) msgCell.textContent = finalMsg;
+    }
+
+    // initialize and attach listeners
+    function init() {
+      const table = document.getElementById('attendanceTable');
+      const rows = table.querySelectorAll('tbody tr');
+      rows.forEach(row => {
+        // find all checkboxes in this row and listen for changes
+        const boxes = row.querySelectorAll('input[type="checkbox"]');
+        boxes.forEach(box => {
+          box.addEventListener('change', () => updateRow(row));
+        });
+        // initial calculation
+        updateRow(row);
+      });
+    }
+
+    // run after DOM load
+    document.
+    addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
